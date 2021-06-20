@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!-- 映射器 -->
+<mapper namespace="mapper.GradeMapper" >
+<!--    id对应DAO层接口方法名 parameterType 指定输入参数类型-->
+        <select id="queryGrade" resultType="entity.Grade">
+                SELECT course_id, title, credits, grade
+                FROM takes NATURAL JOIN course
+                WHERE ID=#{arg0} AND semester=#{arg1} AND `year`=#{arg2} AND grade is not null
+                ORDER BY course_id;
+        </select>
+
+        <update id="update">
+                UPDATE takes
+                SET grade = #{arg5}
+                WHERE ID=#{arg0} AND course_id=#{arg1} AND sec_id=#{arg2} AND semester=#{arg4} AND `year`=#{arg3};
+        </update>
+
+
+</mapper>
+

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!-- 映射器 -->
+<mapper namespace="mapper.UserMapper" >
+<!--    id对应DAO层接口方法名 parameterType 指定输入参数类型-->
+        <select id="queryStudent" parameterType="String" resultType="entity.User">
+            with tot_GPA(ID,tot_cred,GPA) as
+                     (SELECT T.ID,SUM(credits) as tot_cred, (SUM(T.grade*T.credits)/SUM(credits)) as GPA
+                      FROM (select * FROM takes NATURAL JOIN course WHERE grade is not NULL) as T
+                      GROUP BY T.ID)
+            SELECT student.ID,`password`,`name`,dept_name,tot_cred,GPA
+            FROM student LEFT JOIN tot_GPA ON student.ID=tot_GPA.ID
+            WHERE student.ID=#{ID};
+        </select>
+
+        <select id="queryProfessor" parameterType="String" resultType="entity.Instructor">
+            select * from instructor where I_ID = #{ID}
+        </select>
+
+        <select id="queryManager" parameterType="String" resultType="entity.Manager">
+            select * from manager where m_id = #{ID}
+        </select>
+
+        <select id="queryMCourse" parameterType="String" resultType="entity.MCourse">
+            select * from course where course_id = #{ID}
+        </select>
+
+        <select id="showStudent" resultType="entity.User">
+            SELECT *
+            FROM student
+        </select>
+
+        <select id="showStudentBYname" parameterType="String" resultType="entity.User">
+            SELECT *
+            FROM student
+            WHERE name like "%"#{name}"%";
+        </select>
+
+        <update id="updateStudent">
+            UPDATE student
+            SET password=#{arg1},name=#{arg2},dept_name=#{arg3}
+            WHERE ID=#{arg0}
+        </update>
+
+        <insert id="addStudent">
+            INSERT INTO student(ID, password, name, dept_name) values (#{arg0},#{arg1},#{arg2},#{arg3})
+        </insert>
+
+        <delete id="deleteS" parameterType="String">
+            delete from student
+            WHERE ID=#{ID}
+        </delete>
+
+        <select id="showInstructor" resultType="entity.Instructor">
+            SELECT *
+            FROM instructor
+        </select>
+
+        <select id="showInstructorBYname" parameterType="String" resultType="entity.Instructor">
+            SELECT *
+            FROM instructor
+            WHERE I_name like "%"#{name}"%";
+        </select>
+
+        <update id="updateInstructor">
+            UPDATE instructor
+            SET password=#{arg1},I_name=#{arg2},dept_name=#{arg3}
+            WHERE I_ID=#{arg0}
+        </update>
+
+        <insert id="addInstructor">
+            INSERT INTO instructor(I_ID, password, I_name, dept_name) values (#{arg0},#{arg1},#{arg2},#{arg3})
+        </insert>
+
+        <delete id="deleteI" parameterType="String">
+            delete from instructor
+            WHERE I_ID=#{ID}
+        </delete>
+
+        <select id="showCourse" resultType="entity.MCourse">
+            SELECT *
+            FROM course
+        </select>
+
+        <select id="showCourseBYname" parameterType="String" resultType="entity.MCourse">
+            SELECT *
+            FROM course
+            WHERE title like "%"#{name}"%";
+        </select>
+
+        <update id="updateCourse">
+            UPDATE course
+            SET title=#{arg1},dept_name=#{arg2},credits=#{arg3}
+            WHERE course_id=#{arg0}
+        </update>
+
+        <insert id="addCourse">
+            INSERT INTO course(course_id, title, dept_name, credits) values (#{arg0},#{arg1},#{arg2},#{arg3})
+        </insert>
+
+        <delete id="deleteC" parameterType="String">
+            delete from course
+            WHERE course_id=#{ID}
+        </delete>
+
+        <select id="queryDept" resultType="entity.Department">
+            SELECT *
+            FROM department
+        </select>
+</mapper>
+

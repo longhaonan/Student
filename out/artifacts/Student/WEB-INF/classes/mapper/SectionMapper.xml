@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!-- 映射器 -->
+<mapper namespace="mapper.SectionMapper" >
+<!--    id对应DAO层接口方法名 parameterType 指定输入参数类型-->
+        <select id="querySection" resultType="entity.Section">
+                SELECT course_id, title, I_ID, I_name, sec_id, building, room_number, time_slot_id, `day`, start_hr, start_min, end_hr, end_min
+                FROM (instructor NATURAL JOIN teaches NATURAL JOIN section NATURAL JOIN time_slot) JOIN course USING (course_id)
+                WHERE Available='1'
+                ORDER BY course_id;
+        </select>
+
+        <select id="querySectionAccurate" resultType="entity.Section">
+                SELECT course_id,sec_id
+                FROM section
+                WHERE course_id=#{arg0} AND sec_id=#{arg1}
+        </select>
+
+        <select id="querySectionBYID" parameterType="String" resultType="entity.Section">
+                SELECT course_id, title, I_ID, I_name, sec_id, building, room_number, time_slot_id, `day`, start_hr, start_min, end_hr, end_min
+                FROM (instructor NATURAL JOIN teaches NATURAL JOIN section NATURAL JOIN time_slot) JOIN course USING (course_id)
+                WHERE Available='1' and title like "%"#{coursename}"%"
+                ORDER BY course_id;
+        </select>
+
+        <insert id="add">
+                INSERT INTO takes(ID,course_id,sec_id,semester,`year`)
+                SELECT #{arg0},course_id,sec_id,semester,`year`
+                FROM section
+                WHERE course_id=#{arg1} AND sec_id=#{arg2} AND semester=#{arg3} AND `year`=#{arg4}
+        </insert>
+
+        <delete id="delete">
+                delete from takes
+                WHERE ID=#{arg0} AND course_id=#{arg1} AND sec_id=#{arg2} AND semester=#{arg3} AND `year`=#{arg4}
+        </delete>
+
+
+        <select id="queryResult" parameterType="String" resultType="entity.Section">
+                SELECT course_id, title, I_name, sec_id, building, room_number, time_slot_id, `day`, start_hr, start_min, end_hr, end_min
+                FROM (instructor NATURAL JOIN teaches NATURAL JOIN section NATURAL JOIN time_slot NATURAL JOIN takes) JOIN course USING (course_id)
+                WHERE ID=#{ID} AND semester='spring' AND `year`='2021'
+                ORDER BY course_id;
+        </select>
+
+        <delete id="deleteS">
+                delete from `section`
+                WHERE course_id=#{arg0} AND sec_id=#{arg1}
+        </delete>
+
+        <select id="confirmBYtime" resultType="entity.Section">
+                SELECT course_id, I_ID, sec_id, building, room_number, time_slot_id
+                FROM teaches NATURAL JOIN `section`
+                WHERE building=#{arg0} AND room_number=#{arg1} AND time_slot_id=#{arg2} AND Available = '1'
+        </select>
+
+        <update id="update_teaches">
+                UPDATE teaches
+                SET I_ID = #{arg0}
+                WHERE course_id=#{arg1} AND sec_id=#{arg2} AND `year`='2021' AND semester='spring'
+        </update>
+
+        <update id="update_section">
+                UPDATE section
+                SET building=#{arg2}, room_number=#{arg3},time_slot_id=#{arg4}
+                WHERE course_id=#{arg0} AND sec_id=#{arg1} AND Available = '1'
+        </update>
+
+        <select id="ins_timefree_confirm" resultType="entity.Instructor">
+                SELECT I_ID
+                FROM teaches NATURAL JOIN section
+                WHERE time_slot_id=#{arg1} AND I_ID=#{arg0} AND Available='1'
+        </select>
+
+        <insert id="add_teaches">
+                INSERT INTO teaches(I_ID,course_id,sec_id,semester,year) values (#{arg0},#{arg1},#{arg2},'spring','2021')
+        </insert>
+
+        <insert id="add_section">
+                INSERT INTO section(course_id,sec_id,semester,`year`,building,room_number,time_slot_id) values (#{arg0},#{arg1},'spring','2021',#{arg2},#{arg3},#{arg4})
+        </insert>
+
+</mapper>
+

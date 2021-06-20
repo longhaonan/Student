@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!-- 映射器 -->
+<mapper namespace="mapper.TakeMapper" >
+<!--    id对应DAO层接口方法名 parameterType 指定输入参数类型-->
+        <select id="queryTake" resultType="entity.Take">
+                SELECT title, `I_name`, sec_id, building, room_number, time_slot_id
+                FROM (teaches NATURAL JOIN instructor NATURAL JOIN `section` NATURAL JOIN takes) join course using (course_id)
+                WHERE ID=#{arg0} and year=#{arg1} and semester=#{arg2}
+                ORDER BY time_slot_id;
+        </select>
+
+        <select id="queryTeach" parameterType="String" resultType="entity.Take">
+                SELECT title, sec_id, building, room_number, time_slot_id
+                FROM teaches NATURAL JOIN `section` NATURAL JOIN course
+                WHERE I_ID=#{ID} AND Available='1'
+                ORDER BY time_slot_id;
+        </select>
+
+        <select id="queryClassroom" resultType="entity.Take">
+                SELECT title, sec_id, I_ID, time_slot_id
+                FROM  course NATURAL JOIN `section` NATURAL JOIN teaches
+                WHERE Available='1' AND building=#{arg0} AND room_number=#{arg1}
+                ORDER BY time_slot_id
+        </select>
+
+        <select id="queryTakeBYTime" resultType="entity.Take">
+                SELECT title, `I_name`, sec_id, building, room_number, time_slot_id
+                FROM (teaches NATURAL JOIN instructor NATURAL JOIN section NATURAL JOIN takes) join course using (course_id)
+                WHERE ID=#{arg0} and time_slot_id=#{arg1} and `year`='2021' and semester='spring'
+        </select>
+
+        <select id="queryCourse" parameterType="String" resultType="entity.Course">
+                SELECT course_id, title, sec_id, semester, `year`
+                FROM teaches NATURAL JOIN course
+                WHERE I_ID=#{ID}
+                ORDER BY `year` DESC,`semester` ASC
+        </select>
+
+        <select id="queryCheck" resultType="entity.Check">
+                SELECT ID, `name`, dept_name, grade, course_id, sec_id, semester, `year`
+                FROM student NATURAL JOIN takes
+                WHERE course_id=#{arg0} AND sec_id=#{arg1} AND semester=#{arg3} AND `year`=#{arg2}
+                ORDER BY ID;
+        </select>
+
+</mapper>
+
